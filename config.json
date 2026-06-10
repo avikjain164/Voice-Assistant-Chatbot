@@ -1,0 +1,6 @@
+{
+  "ollama_model": "gemma4:26b",
+  "prompt_template": "Answer this in one short sentence: {user_text}",
+  "think": false,
+  "hide_thinking": true
+}
