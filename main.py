@@ -6,7 +6,7 @@ from typing import Optional
 
 from voice_assistant.model_client import ModelClient
 from voice_assistant.speech_to_text import DEFAULT_TRIGGER_PHRASE, SpeechToText
-from voice_assistant.text_to_speech import speak
+from voice_assistant.text_to_speech import TextToSpeech
 
 EXIT_COMMANDS = {"exit", "stop", "quit", "goodbye", "shutdown"}
 
@@ -26,7 +26,7 @@ class VoiceAssistantApp:
         style.configure("Subtitle.TLabel", font=("Segoe UI", 10), foreground="#4b5563")
         style.configure("Info.TLabel", font=("Segoe UI", 10))
 
-        self.tts = speak
+        self.tts = TextToSpeech().speak
         self.stt = SpeechToText()
         self.model = ModelClient()
         self.trigger_phrase = DEFAULT_TRIGGER_PHRASE

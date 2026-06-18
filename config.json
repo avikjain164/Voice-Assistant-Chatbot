@@ -1,5 +1,6 @@
 {
-  "ollama_model": "gemma4:26b",
+  "ollama_model": "qwen3.5:0.8b",
+  "safe_model": "qwen3.5:0.8b",
   "prompt_template": "Answer this in one short sentence: {user_text}",
   "think": false,
   "hide_thinking": true

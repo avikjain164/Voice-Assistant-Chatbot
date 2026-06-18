@@ -1,4 +1,6 @@
 import json
+import platform
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -12,6 +14,22 @@ def _load_config_from_path(path: Path) -> Dict[str, Any]:
         raise RuntimeError(f"Missing configuration file: {path}")
     except json.JSONDecodeError as exc:
         raise RuntimeError(f"Invalid JSON in configuration file: {exc}") from exc
+
+
+def _ollama_available() -> bool:
+    return shutil.which("ollama") is not None
+
+
+def _is_linux_arm() -> bool:
+    return platform.system() == "Linux" and platform.machine().startswith(("arm", "aarch64"))
+
+
+def _system_info() -> Dict[str, str]:
+    return {
+        "platform": platform.system(),
+        "machine": platform.machine(),
+        "python_version": platform.python_version(),
+    }
 
 
 class ModelClient:
@@ -37,6 +55,22 @@ class ModelClient:
         model = config.get("ollama_model")
         if not model:
             raise RuntimeError("Configuration must include 'ollama_model'")
+
+        if not _ollama_available():
+            return (
+                "Ollama CLI is not available on this system. "
+                "Install Ollama and ensure it is on PATH, or configure a smaller local model."
+            )
+
+        fallback_model = config.get("safe_model")
+        if _is_linux_arm() and fallback_model:
+            model = fallback_model
+
+        if _is_linux_arm() and "26b" in model.lower() and not fallback_model:
+            return (
+                "The configured model appears too large for a Raspberry Pi/ARM device. "
+                "Please set `safe_model` in config.json to a small Ollama model such as `gemma2:1b`."
+            )
 
         prompt_template = config.get("prompt_template", "Answer this in one short sentence: {user_text}")
         prompt = prompt_template.format(user_text=user_text)
